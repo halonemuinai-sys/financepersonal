@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --panel-bg: rgba(22, 27, 34, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --income: #3fb950;
+      --expense: #f85149;
+      --input-bg: rgba(13, 17, 23, 0.8);
+      --hover-bg: rgba(255, 255, 255, 0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(88, 166, 255, 0.08), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(63, 185, 80, 0.08), transparent 25%);
+    }
+
+    .container {
+      max-width: 1050px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+    }
+
+    /* GLASSMORPHISM PANELS */
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.8rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    h1, h2, h3 { color: #fff; font-weight: 600; }
+    
+    .header-title { font-size: 1.4rem; margin-bottom: 1.5rem; text-align: center; }
+    .section-title { font-size: 1.2rem; margin-bottom: 1rem; }
+
+    /* SUMMARY CARDS */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-card {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      border-radius: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--glass-border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .summary-card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .summary-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 1px; }
+    .summary-val { font-size: 1.6rem; font-weight: 700; color: #fff; }
+    
+    .val-income { color: var(--income); }
+    .val-expense { color: var(--expense); }
+
+    /* FORM */
+    .form-group { margin-bottom: 1.3rem; }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+    
+    input, select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+    }
+    
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1f6feb, #3b82f6);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+
+    /* TABLE */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { padding: 1rem 0.5rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
+    th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--glass-border); }
+    tr { transition: background 0.2s; }
+    tr:hover { background: var(--hover-bg); }
+    
+    .td-date { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
+    .td-category { font-weight: 500; }
+    .td-notes { color: var(--text-muted); font-size: 0.9rem;}
+    
+    .badge {
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-income { background: rgba(63, 185, 80, 0.15); color: var(--income); }
+    .badge-expense { background: rgba(248, 81, 73, 0.15); color: var(--expense); }
+
+    /* LOADER & TOAST */
+    .loader { display: none; text-align: center; margin-top: 1rem; color: var(--accent); font-size: 0.9rem; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% {opacity: 0.6;} 50% {opacity: 1;} 100% {opacity: 0.6;} }
+    
+    #toast {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #238636;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 1000;
+    }
+    #toast.show { bottom: 30px; }
+
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .container { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- LEFT SIDE: ADD TRANSACTION -->
+    <div class="glass-panel">
+      <h2 class="header-title">Input Transaksi</h2>
+      <form id="txForm" onsubmit="submitForm(event)">
+        
+        <div class="form-group">
+          <label>Tipe</label>
+          <select id="type" required>
+            <option value="Expense">Expense (Pengeluaran)</option>
+            <option value="Income">Income (Pemasukan)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="amount" placeholder="Contoh: 50000" required min="1">
+        </div>
+        
+        <div class="form-group">
+          <label>Kategori</label>
+          <input type="text" id="category" placeholder="Cth: Makanan, Gaji, Bensin" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Keterangan</label>
+          <input type="text" id="notes" placeholder="Catatan opsional..">
+        </div>
+        
+        <button type="submit" id="submitBtn">Simpan Data</button>
+        <div class="loader" id="loader">Processing data...</div>
+      </form>
+    </div>
+
+    <!-- RIGHT SIDE: DASHBOARD -->
+    <div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-title">Total Saldo</div>
+          <div class="summary-val" id="val-balance">Rp 0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-title">Pemasukan</div>
+          <div class="summary-val val-income" id="val-income">Rp 0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-title">Pengeluaran</div>
+          <div class="summary-val val-expense" id="val-expense">Rp 0</div>
+        </div>
+      </div>
+
+      <div class="glass-panel">
+        <h3 class="section-title">Riwayat Terakhir</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Status</th>
+                <th>Kategori & Keterangan</th>
+                <th style="text-align: right;">Nominal</th>
+              </tr>
+            </thead>
+            <tbody id="txTable">
+              <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2.5rem 0;">Menghubungkan ke Google Sheets...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">Data berhasil disimpan!</div>
+
+  <script>
+    // Format mata uang Rupiah
+    const formatCurrency = (val) => {
+      return new Intl.NumberFormat('id-ID', { 
+        style: 'currency', 
+        currency: 'IDR', 
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(val);
+    };
+
+    // Memuat Data Dashboard saat awal render
+    function loadData() {
+      // Jika tidak di dalam Apps Script (misal local html), beri dummy
+      if(typeof google === 'undefined' || typeof google.script === 'undefined') {
+        document.getElementById('txTable').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">(Local Environment - Apps Script Not Detected)</td></tr>';
+        return; 
+      }
+      
+      google.script.run.withSuccessHandler(function(response) {
+        if(response.success) {
+          // Update cards
+          document.getElementById('val-balance').innerText = formatCurrency(response.summary.balance);
+          document.getElementById('val-income').innerText = formatCurrency(response.summary.income);
+          document.getElementById('val-expense').innerText = formatCurrency(response.summary.expense);
+          
+          let html = '';
+          if(response.transactions.length === 0) {
+            html = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Belum ada riwayat transaksi.</td></tr>';
+          } else {
+            response.transactions.forEach(tx => {
+              const isIncome = tx.type === 'Income';
+              const badgeClass = isIncome ? 'badge-income' : 'badge-expense';
+              const amountColor = isIncome ? 'color: var(--income);' : 'color: var(--expense);';
+              const sign = isIncome ? '+' : '-';
+              
+              const notesHTML = tx.notes ? `<div class="td-notes">${tx.notes}</div>` : '';
+              
+              html += `<tr>
+                <td class="td-date">${tx.date}</td>
+                <td><span class="badge ${badgeClass}">${tx.type}</span></td>
+                <td>
+                  <div class="td-category">${tx.category}</div>
+                  ${notesHTML}
+                </td>
+                <td style="text-align: right; font-weight: 600; font-size: 1.05rem; ${amountColor}">
+                  ${sign} ${formatCurrency(Math.abs(tx.amount))}
+                </td>
+              </tr>`;
+            });
+          }
+          document.getElementById('txTable').innerHTML = html;
+        } else {
+          document.getElementById('txTable').innerHTML = '<tr><td colspan="4" style="text-align: center; color:#f85149;">Gagal memuat data: ' + response.message + '</td></tr>';
+        }
+      }).withFailureHandler(function(err){
+          document.getElementById('txTable').innerHTML = '<tr><td colspan="4" style="text-align: center; color:#f85149;">Error Server: ' + err.message + '</td></tr>';
+      }).getDashboardData();
+    }
+
+    // Submit form transaksi baru
+    function submitForm(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      const loader = document.getElementById('loader');
+      
+      btn.style.display = 'none';
+      loader.style.display = 'block';
+
+      const data = {
+        type: document.getElementById('type').value,
+        amount: document.getElementById('amount').value,
+        category: document.getElementById('category').value,
+        notes: document.getElementById('notes').value
+      };
+
+      if(typeof google === 'undefined' || typeof google.script === 'undefined') {
+        setTimeout(() => resetForm(btn, loader), 1000);
+        return;
+      }
+
+      google.script.run.withSuccessHandler(function(res) {
+        resetForm(btn, loader);
+        if(res.success) {
+          showToast('Data berhasil ditambahkan!');
+          document.getElementById('txForm').reset();
+          loadData(); // Memuat ulang isi tabel
+        } else {
+          showToast('Gagal: ' + res.message, true);
+        }
+      }).withFailureHandler(function(err){
+        resetForm(btn, loader);
+        showToast('Error Server: ' + err.message, true);
+      }).addTransaction(data);
+    }
+
+    function resetForm(btn, loader) {
+      btn.style.display = 'block';
+      loader.style.display = 'none';
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.background = isError ? '#f85149' : '#238636';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Panggil saat halaman pertama kali load
+    window.onload = loadData;
+  </script>
+</body>
+</html>
