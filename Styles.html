@@ -56,6 +56,9 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
   }
 
@@ -177,6 +180,9 @@
   .empty-state { text-align: center; color: var(--text-muted); padding: 2rem; }
   .error-state { text-align: center; color: #f85149; padding: 2rem; }
   .amount-cell { text-align: right; font-weight: 600; font-size: 1.05rem; }
+  .placeholder-panel { text-align: center; padding: 4rem; }
+  .placeholder-title { margin-bottom: 1rem; }
+  .placeholder-text { color: var(--text-muted); }
 
   /* LOADER & TOAST */
   .loader { display: none; text-align: center; margin-top: 1rem; color: var(--accent); font-size: 0.9rem; animation: pulse 1.5s infinite; }
