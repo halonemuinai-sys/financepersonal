@@ -1,0 +1,35 @@
+<div class="container-single">
+  <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+    <h2 class="header-title">Input Transaksi Baru</h2>
+    <form id="txForm" onsubmit="submitForm(event)">
+      
+      <div class="form-group">
+        <label>Tipe</label>
+        <select id="type" aria-label="Tipe Transaksi" required onchange="updateCategoryOptions()">
+          <option value="Expense">Expense (Potongan/Pengeluaran)</option>
+          <option value="Income">Income (Pendapatan)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Kategori Utama</label>
+        <select id="category" required aria-label="Kategori">
+          <!-- Dibangun dinamis oleh JS -->
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Nominal (Rp)</label>
+        <input type="number" id="amount" placeholder="Cth: 500000" required min="1">
+      </div>
+      
+      <div class="form-group">
+        <label>Keterangan Tambahan</label>
+        <input type="text" id="notes" placeholder="Catatan opsional..">
+      </div>
+      
+      <button type="submit" id="submitBtn">Simpan Data</button>
+      <div class="loader" id="loader">Processing data...</div>
+    </form>
+  </div>
+</div>

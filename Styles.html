@@ -81,14 +81,18 @@
     width: calc(100% - var(--sidebar-width));
   }
   
-  /* CONTAINER & GRID */
-  .container {
+  /* CONTAINERS */
+  .container-full {
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 2.5fr;
-    gap: 2rem;
+  }
+  
+  .container-single {
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 1.5rem;
   }
 
   /* UI COMPONENTS */
