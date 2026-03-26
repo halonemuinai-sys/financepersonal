@@ -9,18 +9,93 @@
     }).format(val);
   };
 
+  let financeChartInstance = null;
+
+  // Visualizing Chart JS
+  function renderChart(summary) {
+    const ctx = document.getElementById('financeChart');
+    if(!ctx) return;
+
+    // Hapus instansi lama agar tidak menumpuk saat refresh
+    if(financeChartInstance) {
+      financeChartInstance.destroy();
+    }
+
+    financeChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Gaji', 'Tunjangan', 'Potongan Pajak', 'BPJS', 'Pengeluaran Lain'],
+        datasets: [{
+          data: [
+            summary.salary, 
+            summary.allowance, 
+            summary.tax, 
+            summary.bpjs, 
+            summary.otherExpense
+          ],
+          backgroundColor: [
+            '#3fb950', // Greenish untuk Gaji
+            '#2ea043', // Green Leaf untuk Tunjangan
+            '#f85149', // Redish untuk Pajak
+            '#da3633', // Dark Red untuk BPJS
+            '#ff9800'  // Orange untuk Lainnya
+          ],
+          borderWidth: 0,
+          hoverOffset: 12
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'right', 
+            labels: { color: '#c9d1d9', font: { family: 'Inter', size: 12 } } 
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let value = context.raw;
+                return ' ' + formatCurrency(value);
+              }
+            }
+          }
+        },
+        cutout: '75%'
+      }
+    });
+  }
+
+  // Dinamis mengatur Dropdown Select Element (Tergantung val Tipe)
+  function updateCategoryOptions() {
+    const type = document.getElementById('type').value;
+    const catSelect = document.getElementById('category');
+    catSelect.innerHTML = '';
+    
+    let options = [];
+    if(type === 'Income') {
+      options = ['Gaji Pokok', 'Tunjangan', 'Bonus Tambahan', 'Pendapatan Lain'];
+    } else {
+      options = ['Potongan Pajak', 'Potongan BPJS', 'Deduction/Asuransi Lain', 'Belanja/Lifestyle', 'Tagihan', 'Pengeluaran Lain'];
+    }
+    
+    options.forEach(opt => {
+      let el = document.createElement('option');
+      el.value = opt;
+      el.innerText = opt;
+      catSelect.appendChild(el);
+    });
+  }
+
   // Navigasi SPA (Single Page Application) antar page sidebar
   function switchPage(pageId, element) {
-    // Sembunyikan semua konten halaman
     document.querySelectorAll('.page').forEach(page => {
       page.classList.remove('active');
     });
-    // Hilangkan status aktif pada menu sidebar
     document.querySelectorAll('.nav-item').forEach(nav => {
       nav.classList.remove('active');
     });
     
-    // Tampilkan yang dipilih
     document.getElementById('page-' + pageId).classList.add('active');
     element.classList.add('active');
   }
@@ -29,14 +104,31 @@
   function loadData() {
     if(typeof google === 'undefined' || typeof google.script === 'undefined') {
       document.getElementById('txTable').innerHTML = '<tr><td colspan="4" class="empty-state">(Local Environment - Apps Script Not Detected)</td></tr>';
+      
+      // Simulasi Dummy di Local Environment
+      setTimeout(() => {
+        document.getElementById('val-balance').innerText = "Rp 15.000.000";
+        document.getElementById('val-income').innerText = "Rp 21.000.000";
+        document.getElementById('val-deductions').innerText = "Rp 2.000.000";
+        document.getElementById('val-other-expense').innerText = "Rp 4.000.000";
+        renderChart({ salary: 18000000, allowance: 3000000, tax: 1500000, bpjs: 500000, otherExpense: 4000000 });
+      }, 500);
+
       return; 
     }
     
     google.script.run.withSuccessHandler(function(response) {
       if(response.success) {
+        
+        // Mempebaru KPI Cards
         document.getElementById('val-balance').innerText = formatCurrency(response.summary.balance);
         document.getElementById('val-income').innerText = formatCurrency(response.summary.income);
-        document.getElementById('val-expense').innerText = formatCurrency(response.summary.expense);
+        // Gabungan deduction
+        document.getElementById('val-deductions').innerText = formatCurrency(response.summary.tax + response.summary.bpjs);
+        document.getElementById('val-other-expense').innerText = formatCurrency(response.summary.otherExpense);
+        
+        // Memperbarui Grafik
+        renderChart(response.summary);
         
         let html = '';
         if(response.transactions.length === 0) {
@@ -99,6 +191,7 @@
       if(res.success) {
         showToast('Data berhasil ditambahkan!');
         document.getElementById('txForm').reset();
+        updateCategoryOptions(); // Kembalikan default select
         loadData(); // Memuat ulang list tanpa refresh halaman
       } else {
         showToast('Gagal: ' + res.message, true);
@@ -119,11 +212,12 @@
     toast.innerText = msg;
     toast.style.background = isError ? '#f85149' : '#238636';
     toast.classList.add('show');
-    
-    // Auto hilangkan setelah 3 detik
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  // Panggil loadData pertama kali halaman dibuka
-  window.onload = loadData;
+  // Panggil loadData dan persiapkan opsi pertama kali halaman dibuka
+  window.onload = () => {
+    updateCategoryOptions();
+    loadData();
+  };
 </script>

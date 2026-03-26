@@ -1,29 +1,31 @@
 <div class="container">
   <!-- LEFT SIDE: ADD TRANSACTION -->
-  <div class="glass-panel">
+  <div class="glass-panel" style="align-self: start;">
     <h2 class="header-title">Input Transaksi</h2>
     <form id="txForm" onsubmit="submitForm(event)">
       
       <div class="form-group">
         <label>Tipe</label>
-        <select id="type" aria-label="Tipe Transaksi" required>
-          <option value="Expense">Expense (Pengeluaran)</option>
-          <option value="Income">Income (Pemasukan)</option>
+        <select id="type" aria-label="Tipe Transaksi" required onchange="updateCategoryOptions()">
+          <option value="Expense">Expense (Potongan/Pengeluaran)</option>
+          <option value="Income">Income (Pendapatan)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Kategori Utama</label>
+        <select id="category" required aria-label="Kategori">
+          <!-- Dibangun dinamis oleh JS -->
         </select>
       </div>
       
       <div class="form-group">
         <label>Nominal (Rp)</label>
-        <input type="number" id="amount" placeholder="Contoh: 50000" required min="1">
+        <input type="number" id="amount" placeholder="Cth: 500000" required min="1">
       </div>
       
       <div class="form-group">
-        <label>Kategori</label>
-        <input type="text" id="category" placeholder="Cth: Makanan, Gaji, Bensin" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Keterangan</label>
+        <label>Keterangan Tambahan</label>
         <input type="text" id="notes" placeholder="Catatan opsional..">
       </div>
       
@@ -34,19 +36,29 @@
 
   <!-- RIGHT SIDE: DASHBOARD SUMMARY -->
   <div>
+    <!-- KPI CARDS -->
     <div class="summary-grid">
       <div class="summary-card">
-        <div class="summary-title">Total Saldo</div>
+        <div class="summary-title" style="color: #fff;">Net Balance</div>
         <div class="summary-val" id="val-balance">Rp 0</div>
       </div>
       <div class="summary-card">
-        <div class="summary-title">Pemasukan</div>
+        <div class="summary-title">Gross Income</div>
         <div class="summary-val val-income" id="val-income">Rp 0</div>
       </div>
       <div class="summary-card">
-        <div class="summary-title">Pengeluaran</div>
-        <div class="summary-val val-expense" id="val-expense">Rp 0</div>
+        <div class="summary-title">Pajak & BPJS</div>
+        <div class="summary-val val-expense" id="val-deductions">Rp 0</div>
       </div>
+      <div class="summary-card">
+        <div class="summary-title">Lainnya</div>
+        <div class="summary-val" style="color: #ff9800;" id="val-other-expense">Rp 0</div>
+      </div>
+    </div>
+
+    <!-- CHARTS AREA -->
+    <div class="chart-container">
+      <canvas id="financeChart" aria-label="Finance Analytics Chart"></canvas>
     </div>
 
     <!-- MAIN DASHBOARD CONTENT (RECENT TX) -->

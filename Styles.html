@@ -83,11 +83,11 @@
   
   /* CONTAINER & GRID */
   .container {
-    max-width: 1100px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 2.5fr;
     gap: 2rem;
   }
 
@@ -109,30 +109,46 @@
   /* SUMMARY CARDS */
   .summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-bottom: 2rem;
   }
   .summary-card {
-    text-align: center;
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1.2rem;
     border-radius: 12px;
     background: var(--input-bg);
     border: 1px solid var(--glass-border);
     transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .summary-card:hover { 
     transform: translateY(-4px); 
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
-  .summary-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 1px; }
-  .summary-val { font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .summary-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .summary-val { font-size: 1.5rem; font-weight: 700; color: #fff; }
   .val-income { color: var(--income); }
   .val-expense { color: var(--expense); }
 
-  /* FORM */
+  /* CHART SECTION */
+  .chart-container {
+    background: var(--panel-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  /* MAIN FORM */
   .form-group { margin-bottom: 1.3rem; }
-  label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+  label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted); font-weight: 500; }
   input, select {
     width: 100%;
     padding: 0.8rem 1rem;
@@ -166,7 +182,6 @@
   table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
   th, td { padding: 1rem 0.5rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
   th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--glass-border); }
-  .th-amount { text-align: right; }
   tr { transition: background 0.2s; }
   tr:hover { background: var(--hover-bg); }
   .td-date { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
@@ -214,6 +229,10 @@
   }
 
   /* RESPONSIVE */
+  @media (max-width: 1200px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
   @media (max-width: 900px) {
     .container { grid-template-columns: 1fr; }
   }
@@ -227,8 +246,8 @@
       align-items: center; 
     }
     .sidebar-logo { margin-bottom: 0; }
-    .nav-item { padding: 0.5rem; }
-    .main-content { margin-left: 0; width: 100%; padding: 1.5rem; }
+    .nav-item { padding: 0.5rem; font-size: 0.9rem; }
+    .main-content { margin-left: 0; width: 100%; padding: 1rem; }
     .summary-grid { grid-template-columns: 1fr; }
   }
 </style>
