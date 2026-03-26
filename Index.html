@@ -44,8 +44,8 @@
     /* GLASSMORPHISM PANELS */
     .glass-panel {
       background: var(--panel-bg);
-      backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
       padding: 1.8rem;
@@ -125,6 +125,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
     th, td { padding: 1rem 0.5rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
     th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--glass-border); }
+    .th-amount { text-align: right; }
     tr { transition: background 0.2s; }
     tr:hover { background: var(--hover-bg); }
     
@@ -140,6 +141,10 @@
     }
     .badge-income { background: rgba(63, 185, 80, 0.15); color: var(--income); }
     .badge-expense { background: rgba(248, 81, 73, 0.15); color: var(--expense); }
+
+    .empty-state { text-align: center; color: var(--text-muted); padding: 2rem; }
+    .error-state { text-align: center; color: #f85149; padding: 2rem; }
+    .amount-cell { text-align: right; font-weight: 600; font-size: 1.05rem; }
 
     /* LOADER & TOAST */
     .loader { display: none; text-align: center; margin-top: 1rem; color: var(--accent); font-size: 0.9rem; animation: pulse 1.5s infinite; }
@@ -179,7 +184,7 @@
         
         <div class="form-group">
           <label>Tipe</label>
-          <select id="type" required>
+          <select id="type" aria-label="Tipe Transaksi" required>
             <option value="Expense">Expense (Pengeluaran)</option>
             <option value="Income">Income (Pemasukan)</option>
           </select>
@@ -231,11 +236,11 @@
                 <th>Waktu</th>
                 <th>Status</th>
                 <th>Kategori & Keterangan</th>
-                <th style="text-align: right;">Nominal</th>
+                <th class="th-amount">Nominal</th>
               </tr>
             </thead>
             <tbody id="txTable">
-              <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2.5rem 0;">Menghubungkan ke Google Sheets...</td></tr>
+              <tr><td colspan="4" class="empty-state">Menghubungkan ke Google Sheets...</td></tr>
             </tbody>
           </table>
         </div>
@@ -260,7 +265,7 @@
     function loadData() {
       // Jika tidak di dalam Apps Script (misal local html), beri dummy
       if(typeof google === 'undefined' || typeof google.script === 'undefined') {
-        document.getElementById('txTable').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">(Local Environment - Apps Script Not Detected)</td></tr>';
+        document.getElementById('txTable').innerHTML = '<tr><td colspan="4" class="empty-state">(Local Environment - Apps Script Not Detected)</td></tr>';
         return; 
       }
       
@@ -273,7 +278,7 @@
           
           let html = '';
           if(response.transactions.length === 0) {
-            html = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Belum ada riwayat transaksi.</td></tr>';
+            html = '<tr><td colspan="4" class="empty-state">Belum ada riwayat transaksi.</td></tr>';
           } else {
             response.transactions.forEach(tx => {
               const isIncome = tx.type === 'Income';
@@ -290,7 +295,7 @@
                   <div class="td-category">${tx.category}</div>
                   ${notesHTML}
                 </td>
-                <td style="text-align: right; font-weight: 600; font-size: 1.05rem; ${amountColor}">
+                <td class="amount-cell" style="${amountColor}">
                   ${sign} ${formatCurrency(Math.abs(tx.amount))}
                 </td>
               </tr>`;
@@ -298,10 +303,10 @@
           }
           document.getElementById('txTable').innerHTML = html;
         } else {
-          document.getElementById('txTable').innerHTML = '<tr><td colspan="4" style="text-align: center; color:#f85149;">Gagal memuat data: ' + response.message + '</td></tr>';
+          document.getElementById('txTable').innerHTML = '<tr><td colspan="4" class="error-state">Gagal memuat data: ' + response.message + '</td></tr>';
         }
       }).withFailureHandler(function(err){
-          document.getElementById('txTable').innerHTML = '<tr><td colspan="4" style="text-align: center; color:#f85149;">Error Server: ' + err.message + '</td></tr>';
+          document.getElementById('txTable').innerHTML = '<tr><td colspan="4" class="error-state">Error Server: ' + err.message + '</td></tr>';
       }).getDashboardData();
     }
 
